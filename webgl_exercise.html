@@ -1,0 +1,123 @@
+<canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)"></canvas>
+<script type="text/javascript" src="lib/jquery-2.0.0.min.js"></script>
+<script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="lib/webgl-debug.js"></script>
+<script type="text/javascript" src="lib/xml2json.js"></script>
+<script type="text/javascript" src="lib/msgpack.js"></script>
+
+<script type="text/javascript" src="src/common/serialization.js"></script>
+
+<script type="text/javascript" src="src/collada_parser/common.js"></script>
+<script type="text/javascript" src="src/collada_parser/scene.js"></script>
+<script type="text/javascript" src="src/collada_parser/animation.js"></script>
+<script type="text/javascript" src="src/collada_parser/skin.js"></script>
+<script type="text/javascript" src="src/collada_parser/geometry.js"></script>
+<script type="text/javascript" src="src/collada_parser/mesh.js"></script>
+<script type="text/javascript" src="src/collada_parser/polygon.js"></script>
+<script type="text/javascript" src="src/collada_parser/meshdata.js"></script>
+<script type="text/javascript" src="src/collada_parser/buffer.js"></script>
+<script type="text/javascript" src="src/collada_parser/controller.js"></script>
+<script type="text/javascript" src="src/collada_parser/asset.js"></script>
+
+<script type="text/javascript" src="src/webgl/webgl_core.js"></script>
+<script type="text/javascript" src="src/webgl/drawingelement.js"></script>
+<script type="text/javascript" src="src/webgl/colladaelement.js"></script>
+<script type="text/javascript" src="src/webgl/planeelement.js"></script>
+<script type="text/javascript" src="src/webgl/primitive.js"></script>
+
+<script type="text/javascript">
+	var canvas = document.getElementById("canvas"), gl = canvas.getContext('experimental-webgl');
+	// gl = WebGLDebugUtils.makeDebugContext(gl);
+
+	gl.clearColor(0.15, 0.15, 1, 0.5);
+	gl.enable(gl.DEPTH_TEST);
+
+	// var image = new Image();
+	// image.addEventListener('load', function() {
+	// 	var texture = webglCore.createTextureObject(gl, image);
+	// 	gl.activeTexture(gl.TEXTURE0);
+	// 	gl.bindTexture(gl.TEXTURE_2D, texture);
+	// })
+	// image.src = "images/tarsier.png"
+
+	var a = {name:'hello'};
+	var b = {name:'hello2', link:a};
+	var c = {name:'hello3', link:b};
+	var test = {array:[a, b, [c]], obj1:a, obj2:b};
+	var array = [];
+	var resource = {body:test, array:array};
+	console.log(JSON.stringify(resource));
+	collectObject(resource.body, resource.array);
+	console.log(JSON.stringify(resource));
+	console.log(resource);
+	var packed = MessagePack.pack(JSON.parse(JSON.stringify(resource)));
+	console.log(packed);
+	var resource_copied = MessagePack.unpack(packed);
+	finalize(resource_copied);
+	linkObject(resource_copied.body, resource_copied.array);
+	console.log(resource_copied.body);
+
+	// var dogDE = new ColladaElement('resources/my_shader.vs', 'resources/my_shader2.fs');
+	// // dogDE.initPackedAsset('./sphere.mbf');
+	// dogDE.initAsset('resources/sphere.dae');
+	var dogDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./dog.mbf'));
+	var gonDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./gon.mbf'));
+	// gonDE.initAsset('resources/dog.dae');
+	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./skinning.mbf'));
+	// sphereDE.initAsset('resources/skinning.dae');
+	var jewelDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./cube2.mbf'));
+	// jewelDE.initAsset('resources/eagle.dae');
+	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./eagle.mbf'));
+
+	var testPlane = new PlaneElement('resources/my_shader2.fs');
+
+	var primitives = {};
+	// primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
+	primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
+	primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
+
+	// // primitives.push(new Primitive(sphereDE, new Transform([0, 0, -5], [0, 0, 1, 0], [1, 1, 1])));
+	primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	primitives.d = new Primitive(jewelDE, getTransform([0, 0, 0], [0, 0, 1, 0], [10, 10, 10]));
+	primitives.e = new Primitive(eagleDE, getTransform([0, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
+	primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
+	primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
+	primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	primitives.k = new Primitive(dogDE, getTransform([-200, 50, 0], [0, 0, 1, 0], [0.1, 0.1, 0.1]));
+
+	// primitives.d = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint1') );
+	// primitives.e = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint2') );
+	// primitives.f = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint3') );
+	// primitives.g = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint4') );
+	// primitives.h = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint5') );
+	// primitives.i = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint6') );
+	// primitives.j = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint7') );
+
+	var startTime = 0;
+
+	var camera_trans = getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]);
+	cycle(Date.now());
+
+	function cycle(time) {
+		gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+
+		var rotation = time / 1000;
+		// primitives.a.trm = getTransform([100, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
+		// primitives.b.trm = getTransform([-150, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
+		// primitives.c.trm = getTransform([0, 0, 0], [rotation, 1, 0, 0], [1, 1, 1]);
+		// primitives.d.trm = getTransform([-250, 0, 0], [rotation, 1, 0, 0], [1, 1, 1]);
+
+		// primitives.d.skeleton.setLocalTransform('Bone10/RotY.ANGLE', getAnimValue(timeKey, valueKey, time/1000, 0));
+		// primitives.a.trm.rot[0] = rotation;
+		// primitives.b.trm.rot[0] = rotation;
+		// primitives.c.trm.rot[0] = rotation;
+
+		$.each(primitives, function(k, prm) {
+			draw(prm, camera_trans, time / 1000);
+		});
+		testPlane.draw(gl, camera_trans, getTransform([0, -100, 0], [Math.PI / 2, 1, 0, 0], [1, 1, 1]));
+	
+		webkitRequestAnimationFrame(cycle);
+	}
+</script>

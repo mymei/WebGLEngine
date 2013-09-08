@@ -1,0 +1,7 @@
+<project name="WebGLEngine" default="hello">
+	<property name="version" value="0.1.0"/>
+	<target name="hello">
+		<echo>hello world!</echo>
+		<echo>Version is ${version}</echo>
+	</target>
+</project>
