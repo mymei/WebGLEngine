@@ -41,18 +41,20 @@ Skin.prototype.cookWeightBuffer = function(geometry) {
 				var buffer = mesh.meshData.buffers[key];
 				self.cookedBuffer[key] = new Array(8 * buffer.size);
 				for (var i = 0; i < self.weightArray.length; i ++) {
-					buffer.indexMap[i].forEach(function(x) {
-						for (var j = 0; j < 4; j ++) {
-							var weight = self.weightArray[i][j];
-							if (weight) {
-								self.cookedBuffer[key][8 * x + j] = parseFloat(weight.index);
-								self.cookedBuffer[key][8 * x + j + 4] = weight.weight;
-							} else {
-								self.cookedBuffer[key][8 * x + j] = 0;
-								self.cookedBuffer[key][8 * x + j + 4] = 0;
+					if (buffer.indexMap[i]) {
+						buffer.indexMap[i].forEach(function(x) {
+							for (var j = 0; j < 4; j ++) {
+								var weight = self.weightArray[i][j];
+								if (weight) {
+									self.cookedBuffer[key][8 * x + j] = parseFloat(weight.index);
+									self.cookedBuffer[key][8 * x + j + 4] = weight.weight;
+								} else {
+									self.cookedBuffer[key][8 * x + j] = 0;
+									self.cookedBuffer[key][8 * x + j + 4] = 0;
+								}
 							}
-						}
-					})
+						})
+					}
 				}
 				buffer.indexMap = undefined;
 			}

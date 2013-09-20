@@ -4,14 +4,14 @@ function Scene(xml) {
 	var self = this;
 	self.nodes = {};
 	$("visual_scene node", xml).each(function() {
-		var id = $(this).attr('name');
+		var id = $(this).attr('sid');
 		self.nodes[id] = {
-			parent_id : $(this).parent('node').attr('name'),
+			parent_id : $(this).parent('node').attr('sid'),
 			controller_url : $(this).children('instance_controller').attr('url'),
 			geometry_url : $(this).children('instance_geometry').attr('url'),
 			transforms:[]
 		}
-		$(this).children('rotate,translate').each(function(i) {
+		$(this).children('rotate,translate,matrix').each(function(i) {
 			self.nodes[id].transforms.push({type:this.nodeName.toLowerCase(), sid:$(this).attr('sid'), vector:parseArray($(this)).map(parseFloat)});
 		})
 	})
@@ -30,11 +30,13 @@ Scene.prototype.getLocalTransform = function(name) {
 				break;
 			}
 			case 'rotate' : {
-				mat4. rotate(mvMatrix, transform.vector[3], transform.vector.slice(0, 3));
+				mat4.rotate(mvMatrix, transform.vector[3], transform.vector.slice(0, 3));
 				break;
 			}
 			case 'matrix' : {
-				mat4.set(transform.vector, mvMatrix);
+				mat4.transpose(transform.vector, mvMatrix);
+				break;
+				// mat4.multiply(mat4.transpose(transform.vector), mvMatrix, mvMatrix);
 			}
 		}
 	})

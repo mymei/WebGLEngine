@@ -26,7 +26,7 @@
 		vec3 cn = aBoneWeights.z * mat3(uBoneTransform[int(aBoneIndices.z)] * uBoneBind[int(aBoneIndices.z)]) * bind_normal;
 		vec3 dn = aBoneWeights.w * mat3(uBoneTransform[int(aBoneIndices.w)] * uBoneBind[int(aBoneIndices.w)]) * bind_normal;
 
-		// gl_Position = uProjection * uModelView * uBoneBind[0] * bind_pos;
+		// gl_Position = uProjection * uModelView * uBoneTransform[0] * uBoneBind[0] * bind_pos;
 		// gl_Position = uProjection * uModelView * uBoneTransform[6] * uBoneBind[6] * bind_pos;
 		vPosition = uModelView * (a + b + c + d);
 		vNormal = mat3(uModelView) * (an + bn + cn + dn);

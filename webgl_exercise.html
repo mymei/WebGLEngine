@@ -69,10 +69,12 @@
 	// jewelDE.initAsset('resources/eagle.dae');
 	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./eagle.mbf'));
 
+	var charDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/rigg.dae'));
+
 	var testPlane = new PlaneElement('resources/my_shader2.fs');
 
 	var primitives = {};
-	// primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
+	primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
 	primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
 	primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
 
@@ -83,7 +85,7 @@
 	primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
 	primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
 	primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
-	primitives.k = new Primitive(dogDE, getTransform([-200, 50, 0], [0, 0, 1, 0], [0.1, 0.1, 0.1]));
+	primitives.k = new Primitive(charDE, getTransform([-200, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
 
 	// primitives.d = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint1') );
 	// primitives.e = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint2') );
