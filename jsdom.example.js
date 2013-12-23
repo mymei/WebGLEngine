@@ -1,10 +1,22 @@
 var $ = require("jquery");
 var fs = require('fs');
 
-eval(fs.readFileSync('scripts/serialization.js', 'utf8'));
-eval(fs.readFileSync('scripts/collada_parser.js', 'utf8'));
-eval(fs.readFileSync('scripts/msgpack.js', 'utf8'));
-eval(fs.readFileSync('scripts/gl-matrix.js', 'utf8'));
+eval(fs.readFileSync('src/common/serialization.js', 'utf8'));
+
+eval(fs.readFileSync('src/collada_parser/common.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/scene.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/animation.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/skin.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/geometry.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/mesh.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/polygon.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/meshdata.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/buffer.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/controller.js', 'utf8'));
+eval(fs.readFileSync('src/collada_parser/asset.js', 'utf8'));
+
+eval(fs.readFileSync('lib/msgpack.js', 'utf8'));
+eval(fs.readFileSync('lib/gl-matrix.js', 'utf8'));
 
 var geometry = {}
 
