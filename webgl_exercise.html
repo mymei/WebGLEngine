@@ -1,6 +1,6 @@
 <canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)"></canvas>
 <script type="text/javascript" src="lib/jquery-2.0.0.min.js"></script>
-<script type="text/javascript" src="lib/glMatrix-0.9.5.min.js"></script>
+<script type="text/javascript" src="lib/gl-matrix.js"></script>
 <script type="text/javascript" src="lib/webgl-debug.js"></script>
 <script type="text/javascript" src="lib/xml2json.js"></script>
 <script type="text/javascript" src="lib/msgpack.js"></script>
@@ -57,16 +57,10 @@
 	linkObject(resource_copied.body, resource_copied.array);
 	console.log(resource_copied.body);
 
-	// var dogDE = new ColladaElement('resources/my_shader.vs', 'resources/my_shader2.fs');
-	// // dogDE.initPackedAsset('./sphere.mbf');
-	// dogDE.initAsset('resources/sphere.dae');
-	var dogDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./dog.mbf'));
-	var gonDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./gon.mbf'));
-	// gonDE.initAsset('resources/dog.dae');
+	var dogDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/dog.dae'));
+	var gonDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/gon.dae'));
 	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./skinning.mbf'));
-	// sphereDE.initAsset('resources/skinning.dae');
 	var jewelDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./cube2.mbf'));
-	// jewelDE.initAsset('resources/eagle.dae');
 	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./eagle.mbf'));
 
 	var charDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/rigg.dae'));
@@ -74,26 +68,17 @@
 	var testPlane = new PlaneElement('resources/my_shader2.fs');
 
 	var primitives = {};
-	primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
-	primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
-	primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
+	// primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
+	// primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
+	// primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
 
-	// // primitives.push(new Primitive(sphereDE, new Transform([0, 0, -5], [0, 0, 1, 0], [1, 1, 1])));
-	primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
-	primitives.d = new Primitive(jewelDE, getTransform([0, 0, 0], [0, 0, 1, 0], [10, 10, 10]));
-	primitives.e = new Primitive(eagleDE, getTransform([0, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
-	primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
-	primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
-	primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// primitives.d = new Primitive(jewelDE, getTransform([100, 0, 0], [0, 0, 1, 0], [10, 10, 10]));
+	// primitives.e = new Primitive(eagleDE, getTransform([0, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
+	// primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
 	primitives.k = new Primitive(charDE, getTransform([-200, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
-
-	// primitives.d = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint1') );
-	// primitives.e = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint2') );
-	// primitives.f = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint3') );
-	// primitives.g = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint4') );
-	// primitives.h = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint5') );
-	// primitives.i = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint6') );
-	// primitives.j = new Primitive(jewelDE, sphereDE.asset.skeleton.getJointTransform('joint7') );
 
 	var startTime = 0;
 
@@ -118,7 +103,7 @@
 		$.each(primitives, function(k, prm) {
 			draw(prm, camera_trans, time / 1000);
 		});
-		testPlane.draw(gl, camera_trans, getTransform([0, -100, 0], [Math.PI / 2, 1, 0, 0], [1, 1, 1]));
+		// testPlane.draw(gl, camera_trans, getTransform([0, -100, 0], [Math.PI / 2, 1, 0, 0], [1, 1, 1]));
 	
 		webkitRequestAnimationFrame(cycle);
 	}

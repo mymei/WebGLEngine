@@ -44,19 +44,17 @@ ColladaElement.prototype.updateGRI = function(key, trm) {
 		} else {
 			GRI.uniforms.uTexture = webglCore.getTexture('images/page.png');
 			var trm2 = self.scene.getLocalTransform(key);
-			mat4.multiply(trm, trm2, trm);
+			mat4.multiply(trm, trm, trm2);
 		}
 		GRI.uniforms.uModelView = trm;
-		var projMatrix = mat4.create();
-		mat4.perspective(60, canvas.width / canvas.height, 0.1, 1000, projMatrix);
-		GRI.uniforms.uProjection = projMatrix;
+		GRI.uniforms.uProjection = getProjMatrix();
 	}
 }
 
 ColladaElement.prototype.draw = function(gl, camera_trans, trm) {
 	var self = this;
 	var out = mat4.create();
-	mat4.multiply(camera_trans, trm, out);
+	mat4.multiply(out, camera_trans, trm);
 
 	for (var k in self.scene.nodes) {
 		var GRI = self.getGRI(k);

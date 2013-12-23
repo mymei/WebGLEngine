@@ -4,7 +4,7 @@ var fs = require('fs');
 eval(fs.readFileSync('scripts/serialization.js', 'utf8'));
 eval(fs.readFileSync('scripts/collada_parser.js', 'utf8'));
 eval(fs.readFileSync('scripts/msgpack.js', 'utf8'));
-eval(fs.readFileSync('scripts/glMatrix-0.9.5.min.js', 'utf8'));
+eval(fs.readFileSync('scripts/gl-matrix.js', 'utf8'));
 
 var geometry = {}
 

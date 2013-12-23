@@ -28,20 +28,50 @@ Animation.prototype.getAnimTime = function(currTime, starTime){
 	return (((currTime - startTime) / this.time) % 1) * this.time;
 }
 
-function getAnimValue(timeKey, valueKey, time) {
+function lerp(a, b, ratio) {
+	if (Array.isArray(a)) {
+		if (a.length == 16) {
+			var rotq_a = quat.fromMat3(quat.create(), mat3.fromMat4(mat3.create(), a));
+			var rotq_b = quat.fromMat3(quat.create(), mat3.fromMat4(mat3.create(), b));
+			quat.slerp(rotq_a, rotq_b, rotq_a, ratio);
+			var rotm = mat3.fromQuat(mat3.create(), rotq_a);
+
+			a = a.map(function(item, index){
+				return item * ratio + b[index] * (1 - ratio);
+			});
+			a[0] = rotm[0];
+			a[1] = rotm[1];
+			a[2] = rotm[2];
+			a[4] = rotm[3];
+			a[5] = rotm[4];
+			a[6] = rotm[5];
+			a[8] = rotm[6];
+			a[9] = rotm[7];
+			a[10] = rotm[8];
+		} else {
+			a = a.map(function(item, index){
+				return item * ratio + b[index] * (1 - ratio);
+			})
+		}
+	}
+	return a;
+}
+
+function getAnimVector(timeKey, valueKey, time) {
 	var max_t = timeKey[timeKey.length - 1];
 	var min_t = timeKey[0];
 	timeKey.forEach(function(x) { 
 		if (x < time) min_t = Math.max(min_t, x);
 		if (x > time) max_t = Math.min(max_t, x);
 	})
-	var min_value = valueKey[timeKey.indexOf(min_t)];
-	var max_value = valueKey[timeKey.indexOf(max_t)];
 	var ratio = 1;
 	if (max_t > min_t) {
 		ratio = (time - min_t) / (max_t - min_t);
 	} else {
 		ratio = 1;
 	}
-	return max_value * ratio + min_value * (1 - ratio);
+	var stride = valueKey.length / timeKey.length;
+	var min_value = valueKey.slice(stride * timeKey.indexOf(min_t), stride * timeKey.indexOf(min_t) + stride);
+	var max_value = valueKey.slice(stride * timeKey.indexOf(max_t), stride * timeKey.indexOf(max_t) + stride);
+	return lerp(max_value, min_value, ratio);
 }

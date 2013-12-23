@@ -48,11 +48,9 @@ PlaneElement.prototype.draw = function(gl, camera_trans, trm) {
 	var self = this;
 	self.uniforms = self.uniforms || {};
 	var out = mat4.create();
-	mat4.multiply(camera_trans, trm, out);
+	mat4.multiply(out, camera_trans, trm);
 	self.uniforms.uModelView = out;
-	var projMatrix = mat4.create();
-	mat4.perspective(60, canvas.width / canvas.height, 0.1, 1000, projMatrix);
-	self.uniforms.uProjection = projMatrix;
+	self.uniforms.uProjection = getProjMatrix();
 
 	self.drawPolygon(gl, 'resources/my_shader_base.vs', self.ps_url, self.uniforms, self.polygons[0], self.vertexBuffer);
 }

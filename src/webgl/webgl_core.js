@@ -110,7 +110,8 @@ webglCore = (function() {
 		var GRI = createGRI(geometry);
 		GRI.vs_url = 'resources/my_shader_skin_base.vs';
 		GRI.skin = skin;
-		GRI.uniforms.uBindPose = mat4.transpose(skin.bindPose);
+		GRI.uniforms.uBindPose = mat4.create();
+		mat4.transpose(GRI.uniforms.uBindPose, skin.bindPose);
 		GRI.uniforms.uBoneBind = new Float32Array(skin.joints.length * 16);
 		$.each(skin.joints,function(k, v){GRI.uniforms.uBoneBind.set(v.bind, k * 16)});
 
@@ -300,8 +301,8 @@ webglCore = (function() {
 
 function getTransform(pos, rot, scale) {
 	var mvMatrix = mat4.identity(mat4.create());
-	mat4.translate(mvMatrix, pos);
-	mat4.rotate(mvMatrix, rot[0], rot.slice(1));
-	mat4.scale(mvMatrix, scale);
+	mat4.translate(mvMatrix, mvMatrix, pos);
+	mat4.rotate(mvMatrix, mvMatrix, rot[0], rot.slice(1));
+	mat4.scale(mvMatrix, mvMatrix, scale);
 	return mvMatrix;
 }
