@@ -57,6 +57,10 @@
 	linkObject(resource_copied.body, resource_copied.array);
 	// console.log(resource_copied.body);
 
+	$.ajax({url:'test.jsonp',success:function(data){
+		console.log(data);
+	},dataType:'jsonp',jsonp:false,jsonpCallback:'callback', crossDomain:true});
+
 	var dogDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/dog.dae'));
 	var gonDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/gon.dae'));
 	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./skinning.mbf'));
