@@ -8,7 +8,7 @@ function Skin(xml) {
 		var joint_names = getInputArray('JOINT', 'Name_array', joint, skin);
 		var bind_values = getInputArray('INV_BIND_MATRIX', 'float_array', joint, skin);
 		self.source = skin.attr('source').slice(1);
-		self.joints = joint_names.map(function(x){var tmp = bind_values.splice(0, 16); return{name:x, bind:mat4.transpose(tmp, tmp)};});
+		self.joints = joint_names.map(function(x){var tmp = bind_values.splice(0, 16); return{name:x, bind:tmp};});
 		self.bindPose = parseArray($('bind_shape_matrix', skin)).map(parseFloat);
 		self.weightArray = [];
 

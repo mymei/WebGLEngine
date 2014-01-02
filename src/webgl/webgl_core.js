@@ -113,7 +113,8 @@ webglCore = (function() {
 		GRI.uniforms.uBindPose = mat4.create();
 		mat4.transpose(GRI.uniforms.uBindPose, skin.bindPose);
 		GRI.uniforms.uBoneBind = new Float32Array(skin.joints.length * 16);
-		$.each(skin.joints,function(k, v){GRI.uniforms.uBoneBind.set(v.bind, k * 16)});
+		var tmp = [];
+		$.each(skin.joints,function(k, v){GRI.uniforms.uBoneBind.set(mat4.transpose(tmp, v.bind), k * 16)});
 
 		for (var key in GRI.vbs) {
 

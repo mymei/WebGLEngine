@@ -6,7 +6,8 @@ function Asset(xml) {
 	$("geometry", xml).each(function(){
 		self.geometry[$(this).attr('id')] = new Geometry(this);
 	})	
-	self.scene = new Scene(xml);
+	self.scene = new Scene;
+	self.scene.importFromCollada(xml);
 	self.controller = new Controller(xml);
 	for (var key in self.geometry) {
 		var skin = self.controller.getSkinFromSource(key);
@@ -14,7 +15,7 @@ function Asset(xml) {
 			skin.cookWeightBuffer(self.geometry[key]);
 		}
 	}
-	self.animation = new Animation(xml);
+	// self.animation = new Animation(xml);
 }
 
 function createAsset(url) {
@@ -22,13 +23,5 @@ function createAsset(url) {
 	$.ajax({async:false, url:url,success:function(data){
 		asset = new Asset(data);
 	},dataType:'xml'});
-	return asset;
-}
-
-function createPackedAsset(url) {
-	var asset;
-	$.ajax({async:false, url:url, dataType:'text', success:function(data){
-		asset = finalize(MessagePack.unpack(data));
-	}});
 	return asset;
 }

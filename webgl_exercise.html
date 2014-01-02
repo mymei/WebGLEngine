@@ -59,26 +59,42 @@
 
 	var dogDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/dog.dae'));
 	var gonDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/gon.dae'));
-	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./skinning.mbf'));
-	var jewelDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./cube2.mbf'));
-	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedAsset('./eagle.mbf'));
+	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./skinning.mbf'));
+	var jewelDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./cube2.mbf'));
+	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./eagle.mbf'));
+	eagleDE.asset.animation = createPackedObject('./eagle.ani');
 
-	var charDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/rigg.dae'));
+	var asset = createPackedObject('./rigg.mbf');
+	asset.animation = createPackedObject('./anim.ani');
+	var charDE = new ColladaElement('resources/my_shader2.fs', asset);
 
 	var testPlane = new PlaneElement('resources/my_shader2.fs');
 
-	var primitives = {};
+	var scene = new Node;
+	var test = new Node;
+	test.de = eagleDE
+	vec3.set(test.position, -5, 0, 0);
+	test.updateMatrix();
+	scene.add(test);
+	var test2 = new Node;
+	test2.de = gonDE;
+	vec3.set(test2.scale, 10, 10, 10);
+	vec3.set(test2.position, 100, 0, 0);
+	test2.updateMatrix();
+	test.add(test2);
+
+	// var primitives = {};
 	// primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
 	// primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
 	// primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
 
-	// primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// // primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
 	// primitives.d = new Primitive(jewelDE, getTransform([100, 0, 0], [0, 0, 1, 0], [10, 10, 10]));
 	// primitives.e = new Primitive(eagleDE, getTransform([0, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
-	// primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// // primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
 	// primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
-	// primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
-	primitives.k = new Primitive(charDE, getTransform([-200, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	// // primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
+	// primitives.k = new Primitive(charDE, getTransform([-200, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
 
 	var startTime = 0;
 
@@ -89,7 +105,7 @@
 		gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 
-		var rotation = time / 1000;
+		// var rotation = time / 1000;
 		// primitives.a.trm = getTransform([100, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
 		// primitives.b.trm = getTransform([-150, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
 		// primitives.c.trm = getTransform([0, 0, 0], [rotation, 1, 0, 0], [1, 1, 1]);
@@ -99,10 +115,12 @@
 		// primitives.a.trm.rot[0] = rotation;
 		// primitives.b.trm.rot[0] = rotation;
 		// primitives.c.trm.rot[0] = rotation;
+		scene.updateMatrixWorld();
+		scene.draw(camera_trans, time / 1000);
 
-		$.each(primitives, function(k, prm) {
-			draw(prm, camera_trans, time / 1000);
-		});
+		// $.each(primitives, function(k, prm) {
+		// 	draw(prm, camera_trans, time / 1000);
+		// });
 		// testPlane.draw(gl, camera_trans, getTransform([0, -100, 0], [Math.PI / 2, 1, 0, 0], [1, 1, 1]));
 	
 		webkitRequestAnimationFrame(cycle);

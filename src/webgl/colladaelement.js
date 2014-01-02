@@ -36,7 +36,7 @@ ColladaElement.prototype.updateGRI = function(key, trm) {
 			GRI.uniforms.uTexture = webglCore.getTexture('images/tarsier.png');
 			var trm_array = [];
 			GRI.skin.joints.forEach(function(joint) {
-				trm_array.push(self.scene.getJointTransform(joint.name));
+				trm_array.push(self.scene.getWorldTransform(joint.name));
 			})
 			var boneTransform = new Float32Array(trm_array.length * 16);
 			$.each(trm_array, function(k, v){boneTransform.set(v, k * 16)});

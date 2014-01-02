@@ -51,3 +51,12 @@ function linkObject(obj, array) {
 		}
 	}
 }
+
+
+function createPackedObject(url) {
+	var obj;
+	$.ajax({async:false, url:url, dataType:'text', success:function(data){
+		obj = finalize(MessagePack.unpack(data));
+	}});
+	return obj;
+}

@@ -1,8 +1,15 @@
 // Node class
-function Scene(xml) {
+function Scene() {
 	ImportedBase.call(this);
+	this.nodes = {};
+}
+
+Scene.prototype = new ImportedBase();
+
+Scene.prototype.constructor = Scene;
+
+Scene.prototype.importFromCollada = function(xml) {
 	var self = this;
-	self.nodes = {};
 	$("visual_scene node", xml).each(function() {
 		var id = $(this).attr('id');
 		self.nodes[id] = {
@@ -16,10 +23,6 @@ function Scene(xml) {
 		})
 	})
 }
-
-Scene.prototype = new ImportedBase();
-
-Scene.prototype.constructor = Scene;
 
 Scene.prototype.getLocalTransform = function(name) {
 	var mvMatrix = mat4.identity(new Array(16));
@@ -66,7 +69,7 @@ Scene.prototype.setLocalTransform = function(channelInfo, vector) {
 	})
 }
 
-Scene.prototype.getJointTransform = function(name) {
+Scene.prototype.getWorldTransform = function(name) {
 	var parent = this.nodes[name].parent_id;
 	var out = this.getLocalTransform(name);
 	while (parent) {
@@ -76,7 +79,7 @@ Scene.prototype.getJointTransform = function(name) {
 	return out;
 }
 
-Scene.prototype.parseTarget = function(target) {
+function parseAnimTargetFromCollada(target) {
 	var tmp = target.split('/');
 	var name = tmp[0];
 	tmp = tmp[1].split('.');
@@ -85,9 +88,9 @@ Scene.prototype.parseTarget = function(target) {
 
 Scene.prototype.applyAnimation = function(animation, time, startTime) {
 	var self = this;
-	$.each(animation.anims, function(k, v) {
+	animation && $.each(animation.anims, function(k, v) {
 		v.channels.forEach(function(channel) {
-			var channelInfo = self.parseTarget(channel.target);
+			var channelInfo = parseAnimTargetFromCollada(channel.target);
 			self.setLocalTransform(channelInfo, getAnimVector(channel.input, channel.output, animation.getAnimTime(time, startTime)));
 		})
 	})
