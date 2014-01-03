@@ -1,11 +1,14 @@
-<canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)"></canvas>
+<html ng-app='WebGLEngine'>
+
 <script type="text/javascript" src="lib/jquery-2.0.0.min.js"></script>
 <script type="text/javascript" src="lib/gl-matrix.js"></script>
 <script type="text/javascript" src="lib/webgl-debug.js"></script>
 <script type="text/javascript" src="lib/xml2json.js"></script>
 <script type="text/javascript" src="lib/msgpack.js"></script>
+<script type="text/javascript" src="lib/angular.min.js"></script>
 
 <script type="text/javascript" src="src/common/serialization.js"></script>
+<script type="text/javascript" src="src/common/keyListener.js"></script>
 
 <script type="text/javascript" src="src/collada_parser/common.js"></script>
 <script type="text/javascript" src="src/collada_parser/scene.js"></script>
@@ -27,39 +30,54 @@
 
 <script type="text/javascript" src="src/scene/sceneNode.js"></script>
 <script type="text/javascript" src="src/scene/sceneCamera.js"></script>
+<script type="text/javascript" src="src/scene/sceneObject.js"></script>
+
+<div ng-controller="mainCtrl">
+
+<canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)" ng-click="triggerAnimation()"></canvas>
 
 <script type="text/javascript">
+
 	var canvas = document.getElementById("canvas"), gl = canvas.getContext('experimental-webgl');
 
 	gl.clearColor(0.15, 0.15, 1, 0.5);
 	gl.enable(gl.DEPTH_TEST);
 
-	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./eagle.mbf'));
-	eagleDE.asset.animation = createPackedObject('./eagle.ani');
-	var charDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./rigg.mbf'));
-	charDE.asset.animation = createPackedObject('./anim.ani');
+
+	var eagleMesh = createPackedObject('./eagle.mbf');
+	var alienMesh = createPackedObject('./rigg.mbf');
+	var gonMesh = createPackedObject('./gon.mbf');
+
+	var eagleAni = createPackedObject('./eagle.ani');
+	var alienAni = createPackedObject('./anim.ani');
 
 	var scene = new Node;
 
-	var test = new Node;
+	var test = new SceneObject('resources/my_shader2.fs', eagleMesh);
 	scene.add(test);
-	test.de = eagleDE
 	vec3.set(test.position, 0, 0, 0);
 	test.updateMatrix();
 
-	var test2 = new Node;
+	var test2 = new SceneObject('resources/my_shader2.fs', alienMesh);
 	test.add(test2);
-	test2.de = charDE;
 	test2.applyMatrix(getTransform([-50, 0, 0], [1.6, 1, 0, 0], [50, 50, 50]));
 	test2.updateMatrix();
+
+	var alien = new SceneObject('resources/my_shader2.fs', alienMesh);
+	scene.add(alien);
+	alien.applyMatrix(getTransform([50, 0, 0], [1.6, 1, 0, 0], [50, 50, 50]));
+	alien.updateMatrix();
+
+	var gonObj = new SceneObject('resources/my_shader2.fs', gonMesh);
+	test.add(gonObj);
+	gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
+	gonObj.updateMatrix();
 
 	var cameraNode = new Camera;
 	scene.add(cameraNode);
 	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
 	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
 	cameraNode.updateMatrix();
-
-	var startTime = 0;
 
 	cycle(Date.now());
 
@@ -72,4 +90,76 @@
 
 		webkitRequestAnimationFrame(cycle);
 	}
+
+
+	function mainCtrl($scope, keylistener) {
+
+		$scope.callbacks= {};
+		$scope.callbacks['A'.charCodeAt(0)] = {
+			callback : function() {
+				cameraNode.position[0] -= 2;
+				cameraNode.updateMatrix();
+			},
+			priority : 100
+		};
+		$scope.callbacks['S'.charCodeAt(0)] = {
+			callback : function() {
+				cameraNode.position[2] -= 2;
+				cameraNode.updateMatrix();
+			},
+			priority : 100
+		};
+		$scope.callbacks['D'.charCodeAt(0)] = {
+			callback : function() {
+				cameraNode.position[0] += 2;
+				cameraNode.updateMatrix();
+			},
+			priority : 100
+		};
+		$scope.callbacks['W'.charCodeAt(0)] = {
+			callback : function() {
+				cameraNode.position[2] += 2;
+				cameraNode.updateMatrix();
+			},
+			priority : 100
+		};
+		keylistener.addScopeListeners($scope);
+
+		$scope.triggerAnimation = function() {
+			test2.triggerAnimation(alienAni, Date.now() / 1000);
+			test.triggerAnimation(eagleAni, Date.now() / 1000, true);
+		}
+	}
+
+	$(document).bind('keyup.global', function COMMONJS(e) {		
+		if(e.keyCode == 9) return false;
+		keyListener.post(e.keyCode, e);
+	});
+
+	angular.module('WebGLEngine',[])
+	    .factory('keylistener', function() {
+        "use strict";
+        return {
+            addScopeListeners : function(scope) {
+                if (scope.callbacks) {
+                    $.each(scope.callbacks, function(k, v) {
+                        keyListener.addListener(k, scope);
+                    });
+                    scope.$on('$destroy', function () {
+                        keyListener.removeListener(scope);
+                    });
+                }
+            },
+            removeScopeListeners : function( scope ) {
+                if (scope.callbacks) {
+                    keyListener.removeListener(scope);
+                }
+            }
+        };
+    });
+
 </script>
+
+</div>
+
+</html>

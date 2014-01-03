@@ -24,7 +24,7 @@ Animation.prototype = new ImportedBase();
 
 Animation.prototype.constructor = Animation;
 
-Animation.prototype.getAnimTime = function(currTime, starTime){
+Animation.prototype.getAnimTime = function(currTime, startTime){
 	return (((currTime - startTime) / this.time) % 1) * this.time;
 }
 

@@ -58,12 +58,6 @@ Node.prototype.applyMatrix = function(matrix) {
 }
 
 Node.prototype.draw = function(camera, time) {
-
-	if (this.de) {
-		this.de.scene.applyAnimation(this.de.asset.animation, time);
-		this.de.draw(gl, camera.matrixWorld, camera.projection, this.matrixWorld);
-	}
-
 	for (var i = 0; i < this.children.length; i ++) {
 		this.children[i].draw(camera, time);
 	}
