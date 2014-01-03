@@ -9,9 +9,3 @@ DrawingElement.prototype.drawPolygon = function(gl, vs_url, ps_url, uniforms, po
 	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, poly.ibo);
 	gl.drawElements(gl.TRIANGLES, poly.num, gl.UNSIGNED_SHORT, 0);
 }
-
-function getProjMatrix() {	
-	var projMatrix = mat4.create();
-	mat4.perspective(projMatrix, 3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
-	return projMatrix;
-}

@@ -26,7 +26,7 @@ Scene.prototype.importFromCollada = function(xml) {
 
 Scene.prototype.getLocalTransform = function(name) {
 	var mvMatrix = mat4.identity(new Array(16));
-	this.nodes[name].transforms.forEach(function(transform) {
+	this.nodes[name] && this.nodes[name].transforms.forEach(function(transform) {
 		switch (transform.type) {
 			case 'translate' : {
 				mat4.translate(mvMatrix, mvMatrix, transform.vector);
@@ -49,7 +49,7 @@ Scene.prototype.getLocalTransform = function(name) {
 Scene.prototype.setLocalTransform = function(channelInfo, vector) {
 	var rotateMap = {x:0, y:1, z:2, angle:3};
 	var translateMap = {x:0, y:1, z:2};
-	this.nodes[channelInfo.nodeId].transforms.forEach(function(transform) {
+	this.nodes[channelInfo.nodeId] && this.nodes[channelInfo.nodeId].transforms.forEach(function(transform) {
 		if (transform.sid == channelInfo.sid) {
 			switch (transform.type) {
 				case 'translate': {

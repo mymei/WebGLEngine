@@ -28,38 +28,40 @@ ColladaElement.prototype.getGRI = function(key) {
 	return self.GRI[key];
 }
 
-ColladaElement.prototype.updateGRI = function(key, trm) {
-	var self = this;
-	var GRI = self.GRI[key];
+ColladaElement.prototype.updateGRITransform = function(GRI, local_trans, camera_trans, camera_proj) {
+	if (GRI) {
+		var trm = mat4.create();
+		GRI.uniforms.uTexture = webglCore.getTexture('images/page.png');
+		mat4.multiply(trm, trm, local_trans);
+		GRI.uniforms.uModelView = mat4.multiply(trm, camera_trans, trm);
+		GRI.uniforms.uProjection = camera_proj;
+	}
+}
+
+ColladaElement.prototype.updateBoneTransform = function(GRI, scene) {
 	if (GRI) {
 		if ('skin' in GRI) {
 			GRI.uniforms.uTexture = webglCore.getTexture('images/tarsier.png');
 			var trm_array = [];
 			GRI.skin.joints.forEach(function(joint) {
-				trm_array.push(self.scene.getWorldTransform(joint.name));
+				trm_array.push(scene.getWorldTransform(joint.name));
 			})
 			var boneTransform = new Float32Array(trm_array.length * 16);
 			$.each(trm_array, function(k, v){boneTransform.set(v, k * 16)});
 			GRI.uniforms.uBoneTransform = boneTransform;
-		} else {
-			GRI.uniforms.uTexture = webglCore.getTexture('images/page.png');
-			var trm2 = self.scene.getLocalTransform(key);
-			mat4.multiply(trm, trm, trm2);
 		}
-		GRI.uniforms.uModelView = trm;
-		GRI.uniforms.uProjection = getProjMatrix();
 	}
 }
 
-ColladaElement.prototype.draw = function(gl, camera_trans, trm) {
+ColladaElement.prototype.draw = function(gl, camera_trans, camera_proj, trm) {
 	var self = this;
-	var out = mat4.create();
-	mat4.multiply(out, camera_trans, trm);
-
 	for (var k in self.scene.nodes) {
+		var local_trans = self.scene.getLocalTransform(k);
+		mat4.multiply(local_trans, trm, local_trans);
 		var GRI = self.getGRI(k);
 		if (GRI) {
-			self.updateGRI(k, out);
+			self.updateGRITransform(GRI, local_trans, camera_trans, camera_proj);
+			self.updateBoneTransform(GRI, self.scene);
 			GRI.elm.forEach(function(p, index) {
 				self.drawPolygon(gl, GRI.vs_url, self.ps_url, GRI.uniforms, p, GRI.vbs[p.bufferKey]);
 			})

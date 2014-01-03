@@ -25,108 +25,51 @@
 <script type="text/javascript" src="src/webgl/planeelement.js"></script>
 <script type="text/javascript" src="src/webgl/primitive.js"></script>
 
+<script type="text/javascript" src="src/scene/sceneNode.js"></script>
+<script type="text/javascript" src="src/scene/sceneCamera.js"></script>
+
 <script type="text/javascript">
 	var canvas = document.getElementById("canvas"), gl = canvas.getContext('experimental-webgl');
-	// gl = WebGLDebugUtils.makeDebugContext(gl);
 
 	gl.clearColor(0.15, 0.15, 1, 0.5);
 	gl.enable(gl.DEPTH_TEST);
 
-	// var image = new Image();
-	// image.addEventListener('load', function() {
-	// 	var texture = webglCore.createTextureObject(gl, image);
-	// 	gl.activeTexture(gl.TEXTURE0);
-	// 	gl.bindTexture(gl.TEXTURE_2D, texture);
-	// })
-	// image.src = "images/tarsier.png"
-
-	var a = {name:'hello'};
-	var b = {name:'hello2', link:a};
-	var c = {name:'hello3', link:b};
-	var test = {array:[a, b, [c]], obj1:a, obj2:b};
-	var array = [];
-	var resource = {body:test, array:array};
-	console.log(JSON.stringify(resource));
-	collectObject(resource.body, resource.array);
-	console.log(JSON.stringify(resource));
-	console.log(resource);
-	var packed = MessagePack.pack(JSON.parse(JSON.stringify(resource)));
-	console.log(packed);
-	var resource_copied = MessagePack.unpack(packed);
-	finalize(resource_copied);
-	linkObject(resource_copied.body, resource_copied.array);
-	// console.log(resource_copied.body);
-
-	$.ajax({url:'test.jsonp',success:function(data){
-		console.log(data);
-	},dataType:'jsonp',jsonp:false,jsonpCallback:'callback', crossDomain:true});
-
-	var dogDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/dog.dae'));
-	var gonDE = new ColladaElement('resources/my_shader2.fs', createAsset('resources/gon.dae'));
-	var sphereDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./skinning.mbf'));
-	var jewelDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./cube2.mbf'));
 	var eagleDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./eagle.mbf'));
 	eagleDE.asset.animation = createPackedObject('./eagle.ani');
-
-	var asset = createPackedObject('./rigg.mbf');
-	asset.animation = createPackedObject('./anim.ani');
-	var charDE = new ColladaElement('resources/my_shader2.fs', asset);
-
-	var testPlane = new PlaneElement('resources/my_shader2.fs');
+	var charDE = new ColladaElement('resources/my_shader2.fs', createPackedObject('./rigg.mbf'));
+	charDE.asset.animation = createPackedObject('./anim.ani');
 
 	var scene = new Node;
+
 	var test = new Node;
-	test.de = eagleDE
-	vec3.set(test.position, -5, 0, 0);
-	test.updateMatrix();
 	scene.add(test);
+	test.de = eagleDE
+	vec3.set(test.position, 0, 0, 0);
+	test.updateMatrix();
+
 	var test2 = new Node;
-	test2.de = gonDE;
-	vec3.set(test2.scale, 10, 10, 10);
-	vec3.set(test2.position, 100, 0, 0);
-	test2.updateMatrix();
 	test.add(test2);
+	test2.de = charDE;
+	test2.applyMatrix(getTransform([-50, 0, 0], [1.6, 1, 0, 0], [50, 50, 50]));
+	test2.updateMatrix();
 
-	// var primitives = {};
-	// primitives.a = new Primitive(dogDE, getTransform([2, 0, -5], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
-	// primitives.g = new Primitive(gonDE, getTransform([-100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
-	// primitives.f = new Primitive(gonDE, getTransform([100, -1, -5], [0, 0, 1, 0], [10, 10, 10]));
-
-	// // primitives.c = new Primitive(sphereDE, getTransform([0, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
-	// primitives.d = new Primitive(jewelDE, getTransform([100, 0, 0], [0, 0, 1, 0], [10, 10, 10]));
-	// primitives.e = new Primitive(eagleDE, getTransform([0, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
-	// // primitives.h = new Primitive(eagleDE, getTransform([200, 0, 0], [0, 0, 1, 0], [1, 1, 1]));
-	// primitives.i = new Primitive(jewelDE, getTransform([200, 200, 0], [0, 0, 1, 0], [30, 30, 30]));
-	// // primitives.j = new Primitive(sphereDE, getTransform([100, 50, 0], [0, 0, 1, 0], [1, 1, 1]));
-	// primitives.k = new Primitive(charDE, getTransform([-200, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	var cameraNode = new Camera;
+	scene.add(cameraNode);
+	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
+	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
+	cameraNode.updateMatrix();
 
 	var startTime = 0;
 
-	var camera_trans = getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]);
 	cycle(Date.now());
 
 	function cycle(time) {
 		gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		gl.viewport(0, 0, canvas.width, canvas.height);
 
-		// var rotation = time / 1000;
-		// primitives.a.trm = getTransform([100, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
-		// primitives.b.trm = getTransform([-150, 0, 0], [rotation, 1, 0, 0], [10, 10, 10]);
-		// primitives.c.trm = getTransform([0, 0, 0], [rotation, 1, 0, 0], [1, 1, 1]);
-		// primitives.d.trm = getTransform([-250, 0, 0], [rotation, 1, 0, 0], [1, 1, 1]);
-
-		// primitives.d.skeleton.setLocalTransform('Bone10/RotY.ANGLE', getAnimValue(timeKey, valueKey, time/1000, 0));
-		// primitives.a.trm.rot[0] = rotation;
-		// primitives.b.trm.rot[0] = rotation;
-		// primitives.c.trm.rot[0] = rotation;
 		scene.updateMatrixWorld();
-		scene.draw(camera_trans, time / 1000);
+		scene.draw(cameraNode, time / 1000);
 
-		// $.each(primitives, function(k, prm) {
-		// 	draw(prm, camera_trans, time / 1000);
-		// });
-		// testPlane.draw(gl, camera_trans, getTransform([0, -100, 0], [Math.PI / 2, 1, 0, 0], [1, 1, 1]));
-	
 		webkitRequestAnimationFrame(cycle);
 	}
 </script>
