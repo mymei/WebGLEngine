@@ -13,6 +13,7 @@ Scene.prototype.importFromCollada = function(xml) {
 	$("visual_scene node", xml).each(function() {
 		var id = $(this).attr('id');
 		self.nodes[id] = {
+			sid : $(this).attr('sid'),
 			parent_id : $(this).parent('node').attr('id'),
 			controller_url : $(this).children('instance_controller').attr('url'),
 			geometry_url : $(this).children('instance_geometry').attr('url'),
@@ -22,6 +23,13 @@ Scene.prototype.importFromCollada = function(xml) {
 			self.nodes[id].transforms.push({type:this.nodeName.toLowerCase(), sid:$(this).attr('sid'), vector:parseArray($(this)).map(parseFloat)});
 		})
 	})
+}
+
+Scene.prototype.getIdFromSid = function(sid) {
+	for (id in this.nodes) {
+		if (this.nodes[id].sid == sid)
+			return id;
+	}
 }
 
 Scene.prototype.getLocalTransform = function(name) {

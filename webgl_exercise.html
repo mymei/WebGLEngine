@@ -9,6 +9,7 @@
 
 <script type="text/javascript" src="src/common/serialization.js"></script>
 <script type="text/javascript" src="src/common/keyListener.js"></script>
+<script type="text/javascript" src="src/common/buttonListener.js"></script>
 
 <script type="text/javascript" src="src/collada_parser/common.js"></script>
 <script type="text/javascript" src="src/collada_parser/scene.js"></script>
@@ -34,7 +35,7 @@
 
 <div ng-controller="mainCtrl">
 
-<canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)" ng-click="triggerAnimation()"></canvas>
+<canvas id="canvas" width='400' height='300' style="background-color:rgba(0, 0, 0, 0.5)" ng-click="triggerAnimation()" ng-mousemove="handleMouseMove($event)" ng-mousedown="mousedown($event)"></canvas>
 
 <script type="text/javascript">
 
@@ -45,11 +46,13 @@
 
 
 	var eagleMesh = createPackedObject('./eagle.mbf');
-	var alienMesh = createPackedObject('./rigg.mbf');
+	var alienMesh = createPackedObject('./alien.mbf');
 	var gonMesh = createPackedObject('./gon.mbf');
+	var avatarMesh = createPackedObject('./avatar.mbf');
 
 	var eagleAni = createPackedObject('./eagle.ani');
-	var alienAni = createPackedObject('./anim.ani');
+	var alienAni = createPackedObject('./alien.ani');
+	var avatarAni = createPackedObject('./avatar.ani');
 
 	var scene = new Node;
 
@@ -58,15 +61,15 @@
 	vec3.set(test.position, 0, 0, 0);
 	test.updateMatrix();
 
-	var test2 = new SceneObject('resources/my_shader2.fs', alienMesh);
-	test.add(test2);
-	test2.applyMatrix(getTransform([-50, 0, 0], [1.6, 1, 0, 0], [50, 50, 50]));
-	test2.updateMatrix();
-
 	var alien = new SceneObject('resources/my_shader2.fs', alienMesh);
 	scene.add(alien);
-	alien.applyMatrix(getTransform([50, 0, 0], [1.6, 1, 0, 0], [50, 50, 50]));
+	alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
 	alien.updateMatrix();
+
+	var avatar = new SceneObject('resources/my_shader2.fs', avatarMesh);
+	scene.add(avatar);
+	avatar.applyMatrix(getTransform([50, -50, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	avatar.updateMatrix();
 
 	var gonObj = new SceneObject('resources/my_shader2.fs', gonMesh);
 	test.add(gonObj);
@@ -79,25 +82,46 @@
 	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
 	cameraNode.updateMatrix();
 
+	// gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	gl.viewport(0, 0, canvas.width, canvas.height);
+
 	cycle(Date.now());
 
+	var pressed = false;
+	var prevTime;
+	var prevX, curX;
 	function cycle(time) {
+		buttonListener.update();
+		webkitRequestAnimationFrame(cycle);
+
 		gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		gl.viewport(0, 0, canvas.width, canvas.height);
+		// // gl.viewport(0, 0, canvas.width, canvas.height);
 
 		scene.updateMatrixWorld();
 		scene.draw(cameraNode, time / 1000);
 
-		webkitRequestAnimationFrame(cycle);
+		if (prevX) {
+			if (curX - prevX != 0) {
+				var out = mat4.create();
+				mat4.rotateY(out, out, (curX - prevX) / 100);
+				mat4.multiply(cameraNode.matrix, out, cameraNode.matrix);
+				cameraNode.applyMatrix(cameraNode.matrix);
+				cameraNode.updateMatrix();
+				// cameraNode.matrixWorldInvalidated = true;
+				// cameraNode.updateMatrix();
+				// console.log(curX - prevX);
+			}
+		}
+		prevX = curX;
 	}
 
 
-	function mainCtrl($scope, keylistener) {
+	function mainCtrl($scope, buttonlistener) {
 
 		$scope.callbacks= {};
 		$scope.callbacks['A'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[0] -= 2;
+				cameraNode.position[0] += 2;
 				cameraNode.updateMatrix();
 			},
 			priority : 100
@@ -111,7 +135,7 @@
 		};
 		$scope.callbacks['D'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[0] += 2;
+				cameraNode.position[0] -= 2;
 				cameraNode.updateMatrix();
 			},
 			priority : 100
@@ -123,40 +147,85 @@
 			},
 			priority : 100
 		};
-		keylistener.addScopeListeners($scope);
+		buttonlistener.addScopeListeners($scope);
 
 		$scope.triggerAnimation = function() {
-			test2.triggerAnimation(alienAni, Date.now() / 1000);
-			test.triggerAnimation(eagleAni, Date.now() / 1000, true);
+			alien.triggerAnimation(alienAni, Date.now() / 1000);
+			// test.triggerAnimation(eagleAni, Date.now() / 1000, true);
+			avatar.triggerAnimation(avatarAni, Date.now() / 1000);
+		}
+
+		$scope.handleMouseMove = function(e) {
+			if (e.button == 2) {
+				curX = e.pageX;
+			} else {
+				prevX = curX = e.pageX;
+			}
+		}
+
+		$scope.mousedown = function(e) {
+			// if (e.button == 2) {
+			// 	prevX = e.pageX;
+			// }
 		}
 	}
 
-	$(document).bind('keyup.global', function COMMONJS(e) {		
+	$(document).bind('keyup.global', function COMMONJS(e) {	
+		buttonListener.keyUp(e);
 		if(e.keyCode == 9) return false;
-		keyListener.post(e.keyCode, e);
 	});
 
+	$(document).bind('keydown.global', function COMMONJS(e) {	
+		keyListener.post(e.keyCode, e);
+		buttonListener.keyDown(e);
+	});
+
+	document.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	// document.addEventListener( 'keydown', function() {!pressed && console.log('pressed');pressed = true;}, false );
+	// document.addEventListener( 'keyup', function() {pressed && console.log('released');pressed = false;}, false );
+	// document.addEventListener( 'keyup',   bind( this, this.keyup ), false );
+
 	angular.module('WebGLEngine',[])
-	    .factory('keylistener', function() {
-        "use strict";
-        return {
-            addScopeListeners : function(scope) {
-                if (scope.callbacks) {
-                    $.each(scope.callbacks, function(k, v) {
-                        keyListener.addListener(k, scope);
-                    });
-                    scope.$on('$destroy', function () {
-                        keyListener.removeListener(scope);
-                    });
-                }
-            },
-            removeScopeListeners : function( scope ) {
-                if (scope.callbacks) {
-                    keyListener.removeListener(scope);
-                }
-            }
-        };
-    });
+	.factory('keylistener', function() {
+		"use strict";
+		return {
+			addScopeListeners : function(scope) {
+				if (scope.callbacks) {
+					$.each(scope.callbacks, function(k, v) {
+						keyListener.addListener(k, scope);
+					});
+					scope.$on('$destroy', function () {
+						keyListener.removeListener(scope);
+					});
+				}
+			},
+			removeScopeListeners : function( scope ) {
+				if (scope.callbacks) {
+					keyListener.removeListener(scope);
+				}
+			}
+		};
+	})
+	.factory('buttonlistener', function() {
+		"use strict";
+		return {
+			addScopeListeners : function(scope) {
+				if (scope.callbacks) {
+					$.each(scope.callbacks, function(k, v) {
+						buttonListener.addListener(k, scope);
+					});
+					scope.$on('$destroy', function () {
+						buttonListener.removeListener(scope);
+					});
+				}
+			},
+			removeScopeListeners : function( scope ) {
+				if (scope.callbacks) {
+					buttonListener.removeListener(scope);
+				}
+			}
+		};
+	});
 
 </script>
 
