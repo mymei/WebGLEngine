@@ -1,4 +1,4 @@
-function Node() {
+SWE.Node = function() {
 	this.parent = undefined;
 	this.children = [];
 	this.objects = [];
@@ -9,7 +9,7 @@ function Node() {
 	this.matrixWorld = mat4.create();
 }
 
-Node.prototype.add = function(child) {
+SWE.Node.prototype.add = function(child) {
 	if (child.parent != undefined) {
 		child.parent.remove(child);
 	}
@@ -17,7 +17,7 @@ Node.prototype.add = function(child) {
 	child.parent = this;
 }
 
-Node.prototype.remove = function(child) {
+SWE.Node.prototype.remove = function(child) {
 	var index = this.children.indexOf(child);
 	if (index != -1) {
 		child.parent = undefined;
@@ -25,13 +25,13 @@ Node.prototype.remove = function(child) {
 	}
 }
 
-Node.prototype.updateMatrix = function() {
+SWE.Node.prototype.updateMatrix = function() {
 	mat4.fromRotationTranslation(this.matrix, this.quaternion, this.position);
 	mat4.scale(this.matrix, this.matrix, this.scale);
 	this.matrixWorldInvalidated = true;
 }
 
-Node.prototype.updateMatrixWorld = function(force) {
+SWE.Node.prototype.updateMatrixWorld = function(force) {
 	if (this.matrixWorldInvalidated || force) {
 		this.matrixWorldInvalidated = false;
 		force = true;
@@ -47,7 +47,7 @@ Node.prototype.updateMatrixWorld = function(force) {
 	}
 }
 
-Node.prototype.applyMatrix = function(matrix) {
+SWE.Node.prototype.applyMatrix = function(matrix) {
 	var sx = vec3.length(vec3.set(this.scale, matrix[0], matrix[1], matrix[2]));
 	var sy = vec3.length(vec3.set(this.scale, matrix[4], matrix[5], matrix[6]));
 	var sz = vec3.length(vec3.set(this.scale, matrix[8], matrix[9], matrix[10]));
@@ -57,7 +57,7 @@ Node.prototype.applyMatrix = function(matrix) {
 	quat.conjugate(this.quaternion, quat.fromMat3(this.quaternion, mat3.fromMat4(mat3.create(), matrix)));
 }
 
-Node.prototype.draw = function(camera, time) {
+SWE.Node.prototype.draw = function(camera, time) {
 	for (var i = 0; i < this.children.length; i ++) {
 		this.children[i].draw(camera, time);
 	}

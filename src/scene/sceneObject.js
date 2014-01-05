@@ -1,10 +1,10 @@
-function SceneObject(fs, mesh) {
-	Node.call(this);
+SWE.SceneObject = function(fs, mesh) {
+	SWE.Node.call(this);
 	this.de = new ColladaElement(fs, mesh);
 }
 
-SceneObject.prototype = new Node();
-SceneObject.prototype.draw = function(camera, time) {
+SWE.SceneObject.prototype = new SWE.Node();
+SWE.SceneObject.prototype.draw = function(camera, time) {
 
 	if (this.de) {
 		if (this.currentAnim) {
@@ -16,10 +16,10 @@ SceneObject.prototype.draw = function(camera, time) {
 		}
 		this.de.draw(gl, camera.matrixWorld, camera.projection, this.matrixWorld);
 	}
-	Node.prototype.draw.call(this, camera, time);
+	SWE.Node.prototype.draw.call(this, camera, time);
 }
 
-SceneObject.prototype.triggerAnimation = function(animation, time, isLooping) {
+SWE.SceneObject.prototype.triggerAnimation = function(animation, time, isLooping) {
 	if (animation) {
 		this.currentAnim = {
 			startTime : time,
