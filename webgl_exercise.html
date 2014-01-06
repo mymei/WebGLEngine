@@ -139,11 +139,11 @@
 	// gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
 	// gonObj.updateMatrix();
 
-	// var cameraNode = new SWE.Camera;
-	// scene.add(cameraNode);
-	// cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
-	// cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
-	// cameraNode.updateMatrix();
+	var cameraNode = new SWE.Camera;
+	scene.add(cameraNode);
+	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
+	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
+	cameraNode.updateMatrix();
 
 	// gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
