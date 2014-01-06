@@ -46,49 +46,110 @@
 	gl.enable(gl.DEPTH_TEST);
 
 
-	var eagleMesh = createPackedObject('./eagle.mbf');
-	var alienMesh = createPackedObject('./alien.mbf');
-	var gonMesh = createPackedObject('./gon.mbf');
+	// var eagleMesh = createPackedObject('./eagle.mbf');
+	// var alienMesh = createPackedObject('./alien.mbf');
+	// var gonMesh = createPackedObject('./gon.mbf');
 	var avatarMesh = createPackedObject('./avatar.mbf');
 
-	var eagleAni = createPackedObject('./eagle.ani');
-	var alienAni = createPackedObject('./alien.ani');
+	// var eagleAni = createPackedObject('./eagle.ani');
+	// var alienAni = createPackedObject('./alien.ani');
 	var avatarAni = createPackedObject('./avatar.ani');
+
+	var oReq = new XMLHttpRequest();
+	oReq.open("GET", "./cube2.mbf", true);
+	oReq.responseType = "arraybuffer";
+
+	oReq.onload = function (oEvent) {
+		var arrayBuffer = oReq.response;
+		if (arrayBuffer) {
+			var byteArray = new Uint8Array(arrayBuffer);
+
+		}
+	};
+
+	oReq.send(null);
+
+	function unpack_float(data) {
+		var uint32 =
+		((data.charCodeAt(0)  * 256 +
+			data.charCodeAt(1)) * 256 +
+		data.charCodeAt(2)) * 256 +
+		data.charCodeAt(3);
+
+		var sign = uint32 >> 31;
+		var exp  = ((uint32 >> 23) & 0xff) - 127;
+		var fraction = ( uint32 & 0x7fffff ) | 0x800000;
+		return (sign == 0 ? 1 : -1) *
+		fraction * Math.pow(2, exp - 23);
+	}
+
+	function pack_int32(num){
+        return String.fromCharCode((num >>> 24) & 0xff,
+                (num & 0x00ff0000) >>> 16,
+                (num & 0x0000ff00) >>> 8,
+                (num & 0x000000ff));
+    }
+
+	function pack_float(num){
+        var sign = 0;
+        if(num < 0){
+            sign = 1;
+            num = -num;
+        }
+        var exp  = Math.floor(Math.log(num) / Math.LN2);
+        var frac0 = num / Math.pow(2, exp) - 1;
+        var frac1 = Math.floor(frac0 * Math.pow(2, 23));
+        var h32 = (sign << 31) | ((exp+127) << 23) | frac1 & 0x7fffff;
+        return pack_int32(h32);
+    }
+
+    console.log(unpack_float(pack_float(0.99999)));
+
+
+	   //  p.unpack_float = function(){
+    //     var uint32 = this.unpack_uint32();
+    //     var sign = uint32 >> 31;
+    //     var exp  = ((uint32 >> 23) & 0xff) - 127;
+    //     var fraction = ( uint32 & 0x7fffff ) | 0x800000;
+    //     return (sign == 0 ? 1 : -1) *
+    //         fraction * Math.pow(2, exp - 23);
+    // }
+
+	console.log(MessagePack.pack({"compact":true,"schema":[0.12, 0.13, 0.14, 0.15]}));
 
 	var scene = new SWE.Node;
 
-	var test = new SWE.SceneObject('resources/my_shader2.fs', eagleMesh);
-	scene.add(test);
-	vec3.set(test.position, 0, 0, 0);
-	test.updateMatrix();
+	// var eagle = new SWE.SceneObject('resources/my_shader2.fs', eagleMesh);
+	// scene.add(eagle);
+	// vec3.set(eagle.position, 150, 0, 0);
+	// eagle.updateMatrix();
 
-	var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
-	scene.add(alien);
-	alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
-	alien.updateMatrix();
+	// var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
+	// scene.add(alien);
+	// alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	// alien.updateMatrix();
 
 	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
 	scene.add(avatar);
 	avatar.applyMatrix(getTransform([50, -50, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
 	avatar.updateMatrix();
 
-	var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
-	test.add(gonObj);
-	gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
-	gonObj.updateMatrix();
+	// var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
+	// scene.add(gonObj);
+	// gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
+	// gonObj.updateMatrix();
 
-	var cameraNode = new SWE.Camera;
-	scene.add(cameraNode);
-	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
-	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
-	cameraNode.updateMatrix();
+	// var cameraNode = new SWE.Camera;
+	// scene.add(cameraNode);
+	// cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
+	// cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
+	// cameraNode.updateMatrix();
 
 	// gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 
 	cycle(Date.now());
 
-	var pressed = false;
 	var prevTime;
 	var prevX, curX;
 	function cycle(time) {
@@ -151,8 +212,8 @@
 		buttonlistener.addScopeListeners($scope);
 
 		$scope.triggerAnimation = function() {
-			alien.triggerAnimation(alienAni, Date.now() / 1000);
-			// test.triggerAnimation(eagleAni, Date.now() / 1000, true);
+			// alien.triggerAnimation(alienAni, Date.now() / 1000);
+			// eagle.triggerAnimation(eagleAni, Date.now() / 1000);
 			avatar.triggerAnimation(avatarAni, Date.now() / 1000);
 		}
 
@@ -182,9 +243,6 @@
 	});
 
 	document.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
-	// document.addEventListener( 'keydown', function() {!pressed && console.log('pressed');pressed = true;}, false );
-	// document.addEventListener( 'keyup', function() {pressed && console.log('released');pressed = false;}, false );
-	// document.addEventListener( 'keyup',   bind( this, this.keyup ), false );
 
 	angular.module('WebGLEngine',[])
 	.factory('keylistener', function() {
