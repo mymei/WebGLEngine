@@ -42,7 +42,7 @@ ColladaElement.prototype.updateGRITransform = function(GRI, local_trans, camera_
 ColladaElement.prototype.updateBoneTransform = function(GRI, scene) {
 	if (GRI) {
 		if ('skin' in GRI) {
-			GRI.uniforms.uTexture = webglCore.getTexture('images/tarsier.png');
+			GRI.uniforms.uTexture = webglCore.getTexture('images/VWS_B_Male2-2.jpg');
 			var trm_array = [];
 			GRI.skin.joints.forEach(function(joint) {
 				var id = scene.getIdFromSid(joint.name);
