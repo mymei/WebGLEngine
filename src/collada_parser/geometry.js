@@ -23,3 +23,9 @@ Geometry.prototype.cookMeshes = function() {
 	})
 	self.skinWeights && self.skinWeights.cookBuffer(self.meshes);
 }
+
+Geometry.prototype.clearCookedData = function() {
+	this.meshes.forEach(function(mesh) {
+		mesh.meshData.clearCookedData();
+	});
+}

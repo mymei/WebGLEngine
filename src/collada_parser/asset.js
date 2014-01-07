@@ -13,6 +13,8 @@ function Asset(xml) {
 		var skin = self.controller.getSkinFromSource(key);
 		if (skin) {
 			skin.cookWeightBuffer(self.geometry[key]);
+		} else {
+			self.geometry[key].clearCookedData();
 		}
 	}
 	// self.animation = new Animation(xml);

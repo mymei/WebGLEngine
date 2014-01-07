@@ -26,8 +26,8 @@ SWE.Node.prototype.remove = function(child) {
 }
 
 SWE.Node.prototype.updateMatrix = function() {
-	mat4.fromRotationTranslation(this.matrix, this.quaternion, this.position);
-	mat4.scale(this.matrix, this.matrix, this.scale);
+	mat4.scale(this.matrix, mat4.create(), this.scale);
+	mat4.multiply(this.matrix, mat4.fromRotationTranslation(mat4.create(), this.quaternion, this.position), this.matrix);
 	this.matrixWorldInvalidated = true;
 }
 
@@ -38,7 +38,7 @@ SWE.Node.prototype.updateMatrixWorld = function(force) {
 		if (this.parent == undefined) {
 			mat4.copy(this.matrixWorld, this.matrix);
 		} else {
-			mat4.multiply(this.matrixWorld, this.matrix, this.parent.matrixWorld);
+			mat4.multiply(this.matrixWorld, this.parent.matrixWorld, this.matrix);
 		}
 	}
 

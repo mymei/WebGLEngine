@@ -48,7 +48,7 @@
 
 	// var eagleMesh = createPackedObject('./eagle.mbf');
 	var alienMesh = createPackedObject('./alien.mbf');
-	// var gonMesh = createPackedObject('./gon.mbf');
+	var gonMesh = createPackedObject('./gon.mbf');
 	var avatarMesh = createPackedObject('./avatar.mbf');
 
 	// var eagleAni = createPackedObject('./eagle.ani');
@@ -115,7 +115,18 @@
     //         fraction * Math.pow(2, exp - 23);
     // }
 
-	console.log(MessagePack.pack({"compact":true,"schema":[0.12, 0.13, 0.14, 0.15]}));
+    var strTest = MessagePack.pack([0.12, 0.13, 0.14, 0.15, 0.12, 0.12, 0.13, 0.14, 0.15, 0.12, 0.12, 0.13, 0.14, 0.15, 0.12]);
+    var arrayTest = new Uint8Array(strTest.length);
+    for (var i = 0; i < strTest.length; i ++) {
+    	console.log(strTest[i] + " " +strTest.charCodeAt(i));
+    	arrayTest[i] = strTest.charCodeAt(i);
+    }
+    var mergedText = "";
+    for (var i = 0; i < arrayTest.length; i ++) {
+    	mergedText += String.fromCharCode(arrayTest[i]);
+    }
+    console.log(mergedText);
+    console.log(MessagePack.unpack(mergedText));
 
 	var scene = new SWE.Node;
 
@@ -129,21 +140,22 @@
 	alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
 	alien.updateMatrix();
 
-	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
-	scene.add(avatar);
-	avatar.applyMatrix(getTransform([50, -50, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
-	avatar.updateMatrix();
-
-	// var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
-	// scene.add(gonObj);
-	// gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
-	// gonObj.updateMatrix();
+	var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
+	scene.add(gonObj);
+	gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
+	gonObj.updateMatrix();
 
 	var cameraNode = new SWE.Camera;
 	scene.add(cameraNode);
 	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
-	cameraNode.applyMatrix(getTransform([0, 0, -505], [0, 1, 0, 0], [1, 1, 1]));
+	cameraNode.applyMatrix(getTransform([0, 0, 505], [0, 1, 0, 0], [1, 1, 1]));
 	cameraNode.updateMatrix();
+
+	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
+	cameraNode.add(avatar);
+	avatar.applyMatrix(getTransform([0, -1, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
+	quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
+	avatar.updateMatrix();
 
 	// gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
@@ -151,7 +163,10 @@
 	cycle(Date.now());
 
 	var prevTime;
-	var prevX, curX;
+	var prevX, prevY, curX, curY;
+	var pitch = 0; yaw = 0;
+	var modified = false;
+
 	function cycle(time) {
 		buttonListener.update();
 		webkitRequestAnimationFrame(cycle);
@@ -162,50 +177,64 @@
 		scene.updateMatrixWorld();
 		scene.draw(cameraNode, time / 1000);
 
-		if (prevX) {
-			if (curX - prevX != 0) {
-				var out = mat4.create();
-				mat4.rotateY(out, out, (curX - prevX) / 100);
-				mat4.multiply(cameraNode.matrix, out, cameraNode.matrix);
-				cameraNode.applyMatrix(cameraNode.matrix);
-				cameraNode.updateMatrix();
-				// cameraNode.matrixWorldInvalidated = true;
-				// cameraNode.updateMatrix();
-				// console.log(curX - prevX);
+		if (prevX && prevY) {
+			if (prevX - curX != 0) {
+				yaw += (prevX - curX) / 100;
+				modified = true;
 			}
+			if (prevY - curY != 0) {
+				pitch += (prevY - curY) / 100;
+				modified = true;
+			}
+
+			if (modified) {
+				quat.identity(cameraNode.quaternion);
+				quat.rotateY(cameraNode.quaternion, cameraNode.quaternion, yaw);
+				quat.rotateX(cameraNode.quaternion, cameraNode.quaternion, pitch);
+				cameraNode.updateMatrix();
+				modified = false;
+			}
+
+			prevX = curX;
+			prevY = curY;
 		}
-		prevX = curX;
 	}
 
 
 	function mainCtrl($scope, buttonlistener) {
 
+		function cameraMove(dir) {
+			var length = vec3.length(dir);
+			vec3.transformQuat(dir, dir, cameraNode.quaternion);
+			dir[1] = 0;
+			vec3.normalize(dir, dir);
+			vec3.scale(dir, dir, length);
+			vec3.add(cameraNode.position, cameraNode.position, dir);
+			cameraNode.updateMatrix();
+		}
+
 		$scope.callbacks= {};
 		$scope.callbacks['A'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[0] += 2;
-				cameraNode.updateMatrix();
+				cameraMove(vec3.fromValues(-2, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['S'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[2] -= 2;
-				cameraNode.updateMatrix();
+				cameraMove(vec3.fromValues(0, 0, 2));
 			},
 			priority : 100
 		};
 		$scope.callbacks['D'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[0] -= 2;
-				cameraNode.updateMatrix();
+				cameraMove(vec3.fromValues(2, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['W'.charCodeAt(0)] = {
 			callback : function() {
-				cameraNode.position[2] += 2;
-				cameraNode.updateMatrix();
+				cameraMove(vec3.fromValues(0, 0, -2));
 			},
 			priority : 100
 		};
@@ -220,8 +249,10 @@
 		$scope.handleMouseMove = function(e) {
 			if (e.button == 2) {
 				curX = e.pageX;
+				curY = e.pageY;
 			} else {
 				prevX = curX = e.pageX;
+				prevY = curY = e.pageY;
 			}
 		}
 

@@ -22,6 +22,12 @@ MeshData.prototype.cookBuffers = function() {
 	}
 }
 
+MeshData.prototype.clearCookedData = function() {
+	for (var key in this.buffers) {
+		this.buffers[key].indexMap = undefined;
+	}
+}
+
 MeshData.prototype.getBufferKey = function(inputs) {
 	return inputs.map(function(input){return input.source.id;}).toString();
 }

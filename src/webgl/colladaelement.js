@@ -33,7 +33,8 @@ ColladaElement.prototype.updateGRITransform = function(GRI, local_trans, camera_
 		var trm = mat4.create();
 		GRI.uniforms.uTexture = webglCore.getTexture('images/page.png');
 		mat4.multiply(trm, trm, local_trans);
-		GRI.uniforms.uModelView = mat4.multiply(trm, camera_trans, trm);
+		var inv = mat4.invert(mat4.create(), camera_trans);
+		GRI.uniforms.uModelView = mat4.multiply(trm, inv, trm);
 		GRI.uniforms.uProjection = camera_proj;
 	}
 }
