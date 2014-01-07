@@ -47,12 +47,12 @@
 
 
 	// var eagleMesh = createPackedObject('./eagle.mbf');
-	// var alienMesh = createPackedObject('./alien.mbf');
+	var alienMesh = createPackedObject('./alien.mbf');
 	// var gonMesh = createPackedObject('./gon.mbf');
 	var avatarMesh = createPackedObject('./avatar.mbf');
 
 	// var eagleAni = createPackedObject('./eagle.ani');
-	// var alienAni = createPackedObject('./alien.ani');
+	var alienAni = createPackedObject('./alien.ani');
 	var avatarAni = createPackedObject('./avatar.ani');
 
 	var oReq = new XMLHttpRequest();
@@ -124,10 +124,10 @@
 	// vec3.set(eagle.position, 150, 0, 0);
 	// eagle.updateMatrix();
 
-	// var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
-	// scene.add(alien);
-	// alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
-	// alien.updateMatrix();
+	var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
+	scene.add(alien);
+	alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	alien.updateMatrix();
 
 	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
 	scene.add(avatar);
@@ -212,7 +212,7 @@
 		buttonlistener.addScopeListeners($scope);
 
 		$scope.triggerAnimation = function() {
-			// alien.triggerAnimation(alienAni, Date.now() / 1000);
+			alien.triggerAnimation(alienAni, Date.now() / 1000);
 			// eagle.triggerAnimation(eagleAni, Date.now() / 1000);
 			avatar.triggerAnimation(avatarAni, Date.now() / 1000);
 		}
