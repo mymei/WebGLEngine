@@ -23,8 +23,8 @@ var geometry = {}
 fs.readFile(process.argv[2], 'utf8', function(error, data) {
 	var asset = new Asset(data);
 	var test = MessagePack.pack(JSON.parse(JSON.stringify(asset)));
-	fs.writeFile(process.argv[3], test, 'utf8', function(error) {
-		fs.readFile(process.argv[3], 'utf8', function(error, data) {
+	fs.writeFile(process.argv[3], test, 'binary', function(error) {
+		fs.readFile(process.argv[3], 'binary', function(error, data) {
 			// console.log(data);
 			console.log(finalize(MessagePack.unpack(data)));
 		})

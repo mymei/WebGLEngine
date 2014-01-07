@@ -47,86 +47,13 @@
 
 
 	// var eagleMesh = createPackedObject('./eagle.mbf');
-	var alienMesh = createPackedObject('./alien.mbf');
-	var gonMesh = createPackedObject('./gon.mbf');
-	var avatarMesh = createPackedObject('./avatar.mbf');
+	var alienMesh = createPackedBinary('./alien.mbf');
+	var gonMesh = createPackedBinary('./gon.mbf');
+	var avatarMesh = createPackedBinary('./avatar.mbf');
 
 	// var eagleAni = createPackedObject('./eagle.ani');
-	var alienAni = createPackedObject('./alien.ani');
-	var avatarAni = createPackedObject('./avatar.ani');
-
-	var oReq = new XMLHttpRequest();
-	oReq.open("GET", "./cube2.mbf", true);
-	oReq.responseType = "arraybuffer";
-
-	oReq.onload = function (oEvent) {
-		var arrayBuffer = oReq.response;
-		if (arrayBuffer) {
-			var byteArray = new Uint8Array(arrayBuffer);
-
-		}
-	};
-
-	oReq.send(null);
-
-	function unpack_float(data) {
-		var uint32 =
-		((data.charCodeAt(0)  * 256 +
-			data.charCodeAt(1)) * 256 +
-		data.charCodeAt(2)) * 256 +
-		data.charCodeAt(3);
-
-		var sign = uint32 >> 31;
-		var exp  = ((uint32 >> 23) & 0xff) - 127;
-		var fraction = ( uint32 & 0x7fffff ) | 0x800000;
-		return (sign == 0 ? 1 : -1) *
-		fraction * Math.pow(2, exp - 23);
-	}
-
-	function pack_int32(num){
-        return String.fromCharCode((num >>> 24) & 0xff,
-                (num & 0x00ff0000) >>> 16,
-                (num & 0x0000ff00) >>> 8,
-                (num & 0x000000ff));
-    }
-
-	function pack_float(num){
-        var sign = 0;
-        if(num < 0){
-            sign = 1;
-            num = -num;
-        }
-        var exp  = Math.floor(Math.log(num) / Math.LN2);
-        var frac0 = num / Math.pow(2, exp) - 1;
-        var frac1 = Math.floor(frac0 * Math.pow(2, 23));
-        var h32 = (sign << 31) | ((exp+127) << 23) | frac1 & 0x7fffff;
-        return pack_int32(h32);
-    }
-
-    console.log(unpack_float(pack_float(0.99999)));
-
-
-	   //  p.unpack_float = function(){
-    //     var uint32 = this.unpack_uint32();
-    //     var sign = uint32 >> 31;
-    //     var exp  = ((uint32 >> 23) & 0xff) - 127;
-    //     var fraction = ( uint32 & 0x7fffff ) | 0x800000;
-    //     return (sign == 0 ? 1 : -1) *
-    //         fraction * Math.pow(2, exp - 23);
-    // }
-
-    var strTest = MessagePack.pack([0.12, 0.13, 0.14, 0.15, 0.12, 0.12, 0.13, 0.14, 0.15, 0.12, 0.12, 0.13, 0.14, 0.15, 0.12]);
-    var arrayTest = new Uint8Array(strTest.length);
-    for (var i = 0; i < strTest.length; i ++) {
-    	console.log(strTest[i] + " " +strTest.charCodeAt(i));
-    	arrayTest[i] = strTest.charCodeAt(i);
-    }
-    var mergedText = "";
-    for (var i = 0; i < arrayTest.length; i ++) {
-    	mergedText += String.fromCharCode(arrayTest[i]);
-    }
-    console.log(mergedText);
-    console.log(MessagePack.unpack(mergedText));
+	var alienAni = createPackedBinary('./alien.ani');
+	var avatarAni = createPackedBinary('./avatar.ani');
 
 	var scene = new SWE.Node;
 

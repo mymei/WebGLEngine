@@ -60,3 +60,25 @@ function createPackedObject(url) {
 	}});
 	return obj;
 }
+
+function createPackedBinary(url) {
+	var obj;
+	var oReq = new XMLHttpRequest();
+	oReq.open("GET", url, false);
+	oReq.responseType = "arraybuffer";
+
+	oReq.onload = function (oEvent) {
+		var arrayBuffer = oReq.response;
+		if (arrayBuffer) {
+			var byteArray = new Uint8Array(arrayBuffer);
+			var mergedText = "";
+			for (var i = 0; i < byteArray.length; i ++) {
+				mergedText += String.fromCharCode(byteArray[i]);
+			}
+			obj = finalize(MessagePack.unpack(mergedText));
+		}
+	};
+
+	oReq.send(null);
+	return obj;
+}
