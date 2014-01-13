@@ -64,18 +64,23 @@
 
 	var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
 	scene.add(alien);
-	alien.applyMatrix(getTransform([-50, 0, 0], [-1.6, 1, 0, 0], [50, 50, 50]));
+	alien.applyMatrix(getTransform([10, 0, 0], [-1.6, 1, 0, 0], [1, 1, 1]));
 	alien.updateMatrix();
 
 	var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
 	scene.add(gonObj);
-	gonObj.applyMatrix(getTransform([-150, 0, 0], [0, 1, 0, 0], [10, 10, 10]));
+	gonObj.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [1, 1, 1]));
 	gonObj.updateMatrix();
+
+	var avatar2 = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
+	scene.add(avatar2);
+	avatar2.applyMatrix(getTransform([-10, 0, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
+	avatar2.updateMatrix();
 
 	var cameraNode = new SWE.Camera;
 	scene.add(cameraNode);
 	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
-	cameraNode.applyMatrix(getTransform([0, 0, 505], [0, 1, 0, 0], [1, 1, 1]));
+	cameraNode.applyMatrix(getTransform([0, 0, 20], [0, 1, 0, 0], [1, 1, 1]));
 	cameraNode.updateMatrix();
 
 	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
@@ -140,28 +145,29 @@
 			cameraNode.updateMatrix();
 		}
 
+		var speed = 0.1;
 		$scope.callbacks= {};
 		$scope.callbacks['A'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(-2, 0, 0));
+				cameraMove(vec3.fromValues(-speed, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['S'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(0, 0, 2));
+				cameraMove(vec3.fromValues(0, 0, speed));
 			},
 			priority : 100
 		};
 		$scope.callbacks['D'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(2, 0, 0));
+				cameraMove(vec3.fromValues(speed, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['W'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(0, 0, -2));
+				cameraMove(vec3.fromValues(0, 0, -speed));
 			},
 			priority : 100
 		};
