@@ -54,7 +54,8 @@ SWE.Node.prototype.applyMatrix = function(matrix) {
 	mat4.scale(matrix, matrix, vec3.set(this.scale, 1/sx, 1/sy, 1/sz));
 	vec3.set(this.scale, sx, sy, sz);
 	vec3.set(this.position, matrix[12], matrix[13], matrix[14]);
-	quat.conjugate(this.quaternion, quat.fromMat3(this.quaternion, mat3.fromMat4(mat3.create(), matrix)));
+	quat.fromMat3(this.quaternion, mat3.fromMat4(mat3.create(), matrix));
+	// quat.conjugate(this.quaternion, quat.fromMat3(this.quaternion, mat3.fromMat4(mat3.create(), matrix)));
 }
 
 SWE.Node.prototype.draw = function(camera, time) {

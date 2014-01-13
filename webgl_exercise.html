@@ -50,6 +50,7 @@
 	var alienMesh = createPackedBinary('./alien.mbf');
 	var gonMesh = createPackedBinary('./gon.mbf');
 	var avatarMesh = createPackedBinary('./avatar.mbf');
+	var sphereMesh = createAsset('./resources/sphere.dae');
 
 	// var eagleAni = createPackedObject('./eagle.ani');
 	var alienAni = createPackedBinary('./alien.ani');
@@ -64,34 +65,72 @@
 
 	var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
 	scene.add(alien);
-	alien.applyMatrix(getTransform([10, 0, 0], [-1.6, 1, 0, 0], [1, 1, 1]));
+	alien.applyMatrix(getTransform([10, -1, 0], [-1.6, 1, 0, 0], [1, 1, 1]));
 	alien.updateMatrix();
 
 	var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
 	scene.add(gonObj);
-	gonObj.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [1, 1, 1]));
+	gonObj.applyMatrix(getTransform([0, -1, 0], [0, 1, 0, 0], [1, 1, 1]));
 	gonObj.updateMatrix();
 
-	var avatar2 = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
-	scene.add(avatar2);
-	avatar2.applyMatrix(getTransform([-10, 0, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
-	avatar2.updateMatrix();
+	// var avatar2 = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
+	// scene.add(avatar2);
+	// avatar2.applyMatrix(getTransform([-10, -1, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
+	// avatar2.updateMatrix();
+
+	var sphere = new SWE.SceneObject('resources/my_shader2.fs', sphereMesh);
+	scene.add(sphere);
+	sphere.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [5, 5, 5]));
+	sphere.updateMatrix();
 
 	var cameraNode = new SWE.Camera;
 	scene.add(cameraNode);
-	cameraNode.setPerspective(3.14 / 180 * 60, canvas.width / canvas.height, 0.1, 1000);
+	cameraNode.setPerspective(3.14 / 180 * 30, canvas.width / canvas.height, 0.1, 1000);
 	cameraNode.applyMatrix(getTransform([0, 0, 20], [0, 1, 0, 0], [1, 1, 1]));
 	cameraNode.updateMatrix();
 
+	var objWorld = new SWE.Node;
+	cameraNode.add(objWorld);
+	var avatar2 = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
+	objWorld.add(avatar2);
+	avatar2.applyMatrix(getTransform([0.1, -0.1, -3], [1.6, 1, 0, 0], [0.1, 0.1, 0.1]));
+	quat.rotateZ(avatar2.quaternion, avatar2.quaternion, 3.14);
+	avatar2.updateMatrix();
+
+	var platformNode = new SWE.Node;
+	cameraNode.add(platformNode);
+
 	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
-	cameraNode.add(avatar);
-	avatar.applyMatrix(getTransform([0, -1, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
+	platformNode.add(avatar);
+	avatar.applyMatrix(getTransform([0, -0.1, -3], [1.6, 1, 0, 0], [0.1, 0.1, 0.1]));
 	quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
 	avatar.updateMatrix();
 
 	// gl.clear(gl.COLOR_BUFFER_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	gl.viewport(0, 0, canvas.width, canvas.height);
 
+
+	var dir = 90;
+	var up = vec3.fromValues(0, 1, 0);
+	var height = 17;
+	var mainSpeed = 0.1;
+	var speed = mainSpeed;
+
+	function cameraMove2(up, vel) {
+		var localUp = vec3.transformQuat(vec3.create(), up, cameraNode.quaternion);
+		var localVel = vec3.transformQuat(vec3.create(), vel, cameraNode.quaternion);
+		vec3.add(cameraNode.position, cameraNode.position, localVel);
+
+		var length = vec3.length(cameraNode.position);
+		var normal = vec3.normalize(vec3.create(), cameraNode.position);
+		vec3.scale(normal, normal, height);
+
+		var newMat = mat4.lookAt(mat4.create(), normal, [0, 0, 0], localUp);
+
+		cameraNode.applyMatrix(newMat);
+		cameraNode.position = normal;
+		cameraNode.updateMatrix();
+	}
 	cycle(Date.now());
 
 	var prevTime;
@@ -130,6 +169,17 @@
 			prevX = curX;
 			prevY = curY;
 		}
+
+		{
+			quat.identity(platformNode.quaternion);
+			quat.rotateZ(platformNode.quaternion, platformNode.quaternion, Math.PI * (dir - 90) / 180);
+			platformNode.updateMatrix();
+			cameraMove2(up, [speed * Math.cos(Math.PI * dir / 180), speed * Math.sin(Math.PI * dir / 180), 0]);
+			speed = mainSpeed;
+
+			vec3.add(objWorld.position, objWorld.position, [-speed * 0.1 * Math.cos(Math.PI * dir / 180), -speed * 0.1 * Math.sin(Math.PI * dir / 180), 0]);
+			objWorld.updateMatrix();
+		}
 	}
 
 
@@ -145,29 +195,38 @@
 			cameraNode.updateMatrix();
 		}
 
-		var speed = 0.1;
 		$scope.callbacks= {};
 		$scope.callbacks['A'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(-speed, 0, 0));
+				dir += 1;
+				// cameraMove2(up, [-1, 0, 0]);
+				// cameraMove(vec3.fromValues(-speed, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['S'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(0, 0, speed));
+				// cameraMove2(up, [Math.cos(Math.PI * dir / 180), -Math.sin(Math.PI * dir / 180), 0]);
+				// cameraMove(vec3.fromValues(0, 0, speed));
+				speed = 0.05;
+				mainSpeed = 0;
 			},
 			priority : 100
 		};
 		$scope.callbacks['D'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(speed, 0, 0));
+				dir += -1;
+				// cameraMove2(up, [1, 0, 0]);
+				// cameraMove(vec3.fromValues(speed, 0, 0));
 			},
 			priority : 100
 		};
 		$scope.callbacks['W'.charCodeAt(0)] = {
 			callback : function() {
-				cameraMove(vec3.fromValues(0, 0, -speed));
+				// cameraMove2(up, [Math.cos(Math.PI * dir / 180), Math.sin(Math.PI * dir / 180), 0]);
+				// cameraMove(vec3.fromValues(0, 0, -speed));
+				speed = 0.2;
+				mainSpeed = 0.1;
 			},
 			priority : 100
 		};
