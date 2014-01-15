@@ -32,6 +32,12 @@ Scene.prototype.getIdFromSid = function(sid) {
 	}
 }
 
+Scene.prototype.addNode = function(id) {
+	this.nodes[id] = {
+		transform : []
+	};
+}
+
 Scene.prototype.getLocalTransform = function(name) {
 	var mvMatrix = mat4.identity(new Array(16));
 	this.nodes[name] && this.nodes[name].transforms.forEach(function(transform) {

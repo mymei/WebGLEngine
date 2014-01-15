@@ -43,7 +43,6 @@ webglCore = (function() {
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-		gl.bindTexture(gl.TEXTURE_2D, null);
 		return texture;
 	}
 
@@ -67,16 +66,11 @@ webglCore = (function() {
 			images.push(image);
 			var img = new Image();
 			img.addEventListener('load', function() {
+				gl.activeTexture(gl.TEXTURE0 + image.index);
 				image.texture = createTextureObject(gl, img);
 			})
 			img.src = image_url;
-		} else {
-			if (image.texture) {
-				gl.activeTexture(gl.TEXTURE0 + image.index);
-				gl.bindTexture(gl.TEXTURE_2D, image.texture);
-			}
 		}
-
 		return image.index;
 	}
 

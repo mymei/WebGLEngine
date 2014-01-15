@@ -58,7 +58,7 @@
 			node.position = this.getCenterPosition();
 			node.updateMatrix();
 
-			var avatar = new SWE.SceneObject('resources/my_shader2.fs', sphereMesh);
+			var avatar = new SWE.SceneObject({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, sphereMesh);
 			node.add(avatar);
 			avatar.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [0.01, 0.01, 0.01]));
 			// quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
@@ -101,12 +101,12 @@
 	// vec3.set(eagle.position, 150, 0, 0);
 	// eagle.updateMatrix();
 
-	var alien = new SWE.SceneObject('resources/my_shader2.fs', alienMesh);
+	var alien = new SWE.SceneObject({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, alienMesh);
 	scene.add(alien);
 	alien.applyMatrix(getTransform([0, 0, 10], [0, 1, 0, 0], [1, 1, 1]));
 	alien.updateMatrix();
 
-	var gonObj = new SWE.SceneObject('resources/my_shader2.fs', gonMesh);
+	var gonObj = new SWE.SceneObject({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, gonMesh);
 	scene.add(gonObj);
 	gonObj.applyMatrix(getTransform([0, -1, 0], [0, 1, 0, 0], [1, 1, 1]));
 	gonObj.updateMatrix();
@@ -116,7 +116,7 @@
 	// avatar2.applyMatrix(getTransform([-10, -1, -2], [-1.6, 1, 0, 0], [1, 1, 1]));
 	// avatar2.updateMatrix();
 
-	var sphere = new SWE.SceneObject('resources/my_shader2.fs', sphereMesh);
+	var sphere = new SWE.SceneObject({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, sphereMesh);
 	scene.add(sphere);
 	sphere.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [5, 5, 5]));
 	sphere.updateMatrix();
@@ -134,7 +134,7 @@
 	var platformNode = new SWE.Node;
 	cameraNode.add(platformNode);
 
-	var avatar = new SWE.SceneObject('resources/my_shader2.fs', avatarMesh);
+	var avatar = new SWE.SceneObject({ps_url:'resources/my_shader2.fs' ,texture_url:'images/VWS_B_Male2-2.jpg'}, avatarMesh);
 	platformNode.add(avatar);
 	avatar.applyMatrix(getTransform([0, -0.1, -3], [1.6, 1, 0, 0], [0.1, 0.1, 0.1]));
 	quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
