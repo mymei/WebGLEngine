@@ -1,6 +1,6 @@
-SWE.SceneObject = function(fs, mesh) {
+SWE.SceneObject = function(drawingElement) {
 	SWE.Node.call(this);
-	this.de = new ColladaElement(fs, mesh);
+	this.de = drawingElement;
 }
 
 SWE.SceneObject.prototype = new SWE.Node();

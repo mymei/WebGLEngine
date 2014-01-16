@@ -1,6 +1,7 @@
 function DrawingElement(material) {
 	this.material = material;
 	this.scene = new Scene;
+	this.GRI = {};
 }
 
 DrawingElement.prototype.drawPolygon = function(gl, vs_url, material, uniforms, poly, vertexBuffers) {
@@ -13,15 +14,14 @@ DrawingElement.prototype.drawPolygon = function(gl, vs_url, material, uniforms, 
 }
 
 DrawingElement.prototype.getGRI = function(key) {
-	this.GRI = this.GRI || {};
 	return this.GRI[key];
 }
 
 DrawingElement.prototype.updateMaterial = function() {
 	if (!this.material.uniforms) {
 		this.material.uniforms = {};
-		this.material.uniforms.uTexture = webglCore.getTexture(this.material.texture_url);
 	}
+	this.material.uniforms.uTexture = webglCore.getTexture(this.material.texture_url);
 }
 
 DrawingElement.prototype.updateGRITransform = function(GRI, local_trans, camera_trans, camera_proj) {

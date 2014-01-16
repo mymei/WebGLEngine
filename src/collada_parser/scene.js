@@ -34,7 +34,7 @@ Scene.prototype.getIdFromSid = function(sid) {
 
 Scene.prototype.addNode = function(id) {
 	this.nodes[id] = {
-		transform : []
+		transforms : []
 	};
 }
 
