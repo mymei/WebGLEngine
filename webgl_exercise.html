@@ -48,22 +48,12 @@
 
 	var floatingObj = {
 		list : [],
-		add : function(vel) {
+		add : function(vel, node) {
 
 			if (this.list.length == 10) {
-				objWorld.remove(this.list.shift().obj);
+				var removing = this.list.shift();
+				removing.obj.parent.remove(removing.obj);
 			}
-
-			var node = new SWE.Node;
-			objWorld.add(node);
-			node.position = this.getCenterPosition();
-			node.updateMatrix();
-
-			var avatar = new SWE.SceneObject(new ColladaElement({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, sphereMesh));
-			node.add(avatar);
-			avatar.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [0.01, 0.01, 0.01]));
-			// quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
-			avatar.updateMatrix();
 
 			this.list.push({obj:node, velocity:vel});
 		},
@@ -72,9 +62,9 @@
 		},
 		update : function() {
 			var center = this.getCenterPosition();
-			this.list.filter(function(el) {
+			this.list = this.list.filter(function(el) {
 				var dist = vec3.distance(el.obj.position, center);
-				dist > 2 && objWorld.remove(el.obj);
+				dist > 2 && el.obj.parent.remove(el.obj);
 				return dist <= 2; 
 			});
 			this.list.forEach(function(el) {
@@ -83,6 +73,8 @@
 			})
 		}
 	};
+
+	var billboard = getPlaneGRI(1, 1);
 
 	// var eagleMesh = createPackedObject('./eagle.mbf');
 	var alienMesh = createPackedBinary('./alien.mbf');
@@ -113,7 +105,7 @@
 	gonObj.updateMatrix();
 
 	var avatar2 = new SWE.SceneObject(new DrawingElement({ps_url:'resources/my_shader2.fs' ,texture_url:'images/tarsier.png'}));
-	avatar2.de.GRI['test'] = getPlaneGRI(1, 1);
+	avatar2.de.GRI['test'] = billboard;
 	avatar2.de.scene.addNode('test');
 	scene.add(avatar2);
 	avatar2.applyMatrix(getTransform([5, 2, 0], [0, 1, 0, 0], [1, 1, 1]));
@@ -244,7 +236,31 @@
 		function shoot() {
 			var curShootTime = Date.now() / 1000;
 			if (!prevShootTime || curShootTime - prevShootTime > 0.2) {
-				floatingObj.add([bulletSpeed * Math.cos(Math.PI * dir / 180), bulletSpeed * Math.sin(Math.PI * dir / 180), 0]);
+
+				var node = new SWE.Node;
+				objWorld.add(node);
+				node.position = floatingObj.getCenterPosition();
+				node.updateMatrix();
+
+				var bullet = new SWE.SceneObject(new DrawingElement({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}));
+				bullet.de.GRI['test'] = billboard;
+				bullet.de.scene.addNode('test');
+				node.add(bullet);
+				bullet.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [0.1, 0.1, 0.1]));
+				// quat.rotateZ(avatar.quaternion, avatar.quaternion, 3.14);
+				bullet.updateMatrix();
+				floatingObj.add([bulletSpeed * Math.cos(Math.PI * dir / 180), bulletSpeed * Math.sin(Math.PI * dir / 180), 0], node);
+
+				var node2= new SWE.Node;
+				scene.add(node2);
+				node2.position = vec3.fromValues(avatar.matrixWorld[12], avatar.matrixWorld[13], avatar.matrixWorld[14]);
+				node2.updateMatrix();
+				var bomb = new SWE.SceneObject(new ColladaElement({ps_url:'resources/my_shader2.fs' ,texture_url:'images/page.png'}, sphereMesh));
+				node2.add(bomb);
+				bomb.applyMatrix(getTransform([0, 0, 0], [0, 1, 0, 0], [0.01, 0.01, 0.01]));
+				bomb.updateMatrix();
+				floatingObj.add([avatar.matrixWorld[12] * -0.01, avatar.matrixWorld[13] * -0.01, avatar.matrixWorld[14] * -0.01], node2);
+
 				avatar.triggerAnimation(avatarAni, Date.now() / 1000);
 				prevShootTime = curShootTime;
 			}
