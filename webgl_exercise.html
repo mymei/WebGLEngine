@@ -62,11 +62,11 @@
 		},
 		update : function() {
 			var center = this.getCenterPosition();
-			this.list = this.list.filter(function(el) {
-				var dist = vec3.distance(el.obj.position, center);
-				dist > 2 && el.obj.parent.remove(el.obj);
-				return dist <= 2; 
-			});
+			// this.list = this.list.filter(function(el) {
+			// 	var dist = vec3.distance(el.obj.position, center);
+			// 	dist > 2 && el.obj.parent.remove(el.obj);
+			// 	return dist <= 2; 
+			// });
 			this.list.forEach(function(el) {
 				vec3.add(el.obj.position, el.obj.position, el.velocity); 
 				el.obj.updateMatrix();
